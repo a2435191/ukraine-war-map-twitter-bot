@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 
 src/twitter.json
+src/permanent_data.json
+src/log.txt
+.vscode/*
 
 # C extensions
 *.so
@@ -129,4 +132,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-src/permanent_data.json
