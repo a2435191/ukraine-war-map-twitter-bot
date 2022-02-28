@@ -46,14 +46,13 @@ def post() -> None:
     LOGGER.debug(f"description_chunks: {description_chunks}")
     
     try:
-        tweet: tweepy.Tweet = API.update_status(
+        tweet = API.update_status(
             f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)})",
             media_ids=[media.media_id]
         )
+
         
-        
-        LOGGER.debug(f"tweet at {tweet.url}")
-        
+        LOGGER.debug(f"tweet at https://twitter.com/ua_invasion_bot/status/{tweet.id}")
         for chunk in description_chunks:
             LOGGER.info(f"making reply tweet for {chunk}")
             API.update_status(chunk, in_reply_to_status_id=tweet.id)
