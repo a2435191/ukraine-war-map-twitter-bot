@@ -1,4 +1,4 @@
-from constants import MAX_TWEET_LENGTH, ELLIPSIS, TARGET_WIDTH, BOT_NAME, DATA_PATH
+from constants import MAX_TWEET_LENGTH, ELLIPSIS, TARGET_WIDTH, BOT_NAME, DATA_PATH, USER_AGENT
 from typing import Any, Dict, List
 from io import BytesIO
 import requests
@@ -44,8 +44,10 @@ def split_tweet(string: str) -> List[str]:
 
 @log_fn_enter_and_exit(LOGGER)
 def get_png(url: str) -> BytesIO:
-    svg = requests.get(url).content
-
+    svg_request = requests.get(url, headers={'User-Agent': USER_AGENT})
+    svg_request.raise_for_status()
+    svg = svg_request.content
+    
     png_bytes = BytesIO(svg2png(svg))
     png = Image.open(png_bytes)
     LOGGER.debug(f"Converted .svg to .png the first time (size: {len(png_bytes.getvalue())} bytes")
