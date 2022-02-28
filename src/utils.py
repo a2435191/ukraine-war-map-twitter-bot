@@ -74,4 +74,4 @@ def update_permanent_data(new: Dict[str, Any]) -> None:
         old = json.load(fh)
     old.update(new)
     with open(DATA_PATH, "w") as fh:
-        json.dump(old, fh)
+        json.dump(old, fh, indent=2)
