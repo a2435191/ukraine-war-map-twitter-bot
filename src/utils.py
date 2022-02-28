@@ -1,11 +1,12 @@
-from constants import MAX_TWEET_LENGTH, ELLIPSIS, TARGET_WIDTH, BOT_NAME
-from typing import List
+from constants import MAX_TWEET_LENGTH, ELLIPSIS, TARGET_WIDTH, BOT_NAME, DATA_PATH
+from typing import Any, Dict, List
 from io import BytesIO
 import requests
 from datetime import datetime
 from PIL import Image
 from cairosvg import svg2png
 from log import get_logger, log_fn_enter_and_exit
+import json
 
 LOGGER = get_logger(__name__)
 
@@ -61,3 +62,16 @@ def get_png(url: str) -> BytesIO:
 def get_filename(timestamp: int) -> str:
     time_formatted = datetime.fromtimestamp(timestamp)
     return f"{BOT_NAME}_{time_formatted}.png".replace(" ", "_")
+
+@log_fn_enter_and_exit(LOGGER)
+def get_permanent_data() -> Dict[str, Any]:
+    with open(DATA_PATH) as fh:
+        return json.load(fh)
+    
+@log_fn_enter_and_exit(LOGGER)
+def update_permanent_data(new: Dict[str, Any]) -> None:
+    with open(DATA_PATH) as fh:
+        old = json.load(fh)
+    old.update(new)
+    with open(DATA_PATH, "w") as fh:
+        json.dump(old, fh)
