@@ -12,3 +12,4 @@ DESCRIPTION_PREFIX = "New map for the war in #Ukraine"
 MAX_MEDIA_BYTES = 15E6 # 15 MB
 TARGET_WIDTH = 2000
 BOT_NAME = "Ukraine Mapping Bot"
+USER_AGENT = "Ukraine War Mapping Twitter bot (https://github.com/a2435191/ukraine-war-map-twitter-bot)"
