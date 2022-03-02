@@ -3,11 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-src/twitter.json
-src/permanent_data.json
-src/log.txt
-.vscode/*
-
 # C extensions
 *.so
 
@@ -132,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ukraine-war-map-twitter-bot custom
+.DS_Store
+
+permanent_data.json
+twitter.json
+log.txt
+
+.vscode/*
