@@ -1,15 +1,8 @@
 import functools
 import logging
-from datetime import datetime
 from typing import Any, Callable, ParamSpec, TypeVar
-
-_CONSOLE_HANDLER = logging.StreamHandler()
-_FILE_HANDLER = logging.FileHandler("src/log.txt")
-
-_CONSOLE_HANDLER.setLevel(logging.DEBUG)
-_FILE_HANDLER.setLevel(logging.DEBUG)
-
-
+from ..constants import LOGS_RELATIVE_PATH
+    
 class CustomFormatter(logging.Formatter):
     _FORMATTER_WITH_FUNC_NAME = logging.Formatter(
         "%(asctime)s %(levelname)s at %(funcName)s in %(module)s (%(lineno)d): %(message)s"
@@ -28,17 +21,22 @@ class CustomFormatter(logging.Formatter):
             return self._FORMATTER_WITH_FUNC_NAME.formatMessage(record)
 
 
-_FORMATTER = CustomFormatter()
-
-_CONSOLE_HANDLER.setFormatter(_FORMATTER)
-_FILE_HANDLER.setFormatter(_FORMATTER)
-
-
 def get_logger(name: str) -> logging.Logger:
+    console_handler = logging.StreamHandler()
+    file_handler = logging.FileHandler(LOGS_RELATIVE_PATH)
+
+    console_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(logging.DEBUG)
+    
+    formatter = CustomFormatter()
+    console_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+    
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(_CONSOLE_HANDLER)
-    logger.addHandler(_FILE_HANDLER)
+    
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
 
     return logger
 

@@ -4,8 +4,8 @@ from typing import Iterable, NamedTuple
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from constants import DATE_STRING_FORMAT, URL
-from log import get_logger, log_fn_enter_and_exit
+from .constants import DATE_STRING_FORMAT, URL
+from .logs.log import get_logger, log_fn_enter_and_exit
 
 LOGGER = get_logger(__name__)
 

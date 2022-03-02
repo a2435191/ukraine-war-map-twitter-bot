@@ -7,18 +7,11 @@ import requests
 from cairosvg import svg2png
 from PIL import Image
 
-from constants import (
-    BOT_NAME,
-    DATA_PATH,
-    ELLIPSIS,
-    MAX_TWEET_LENGTH,
-    TARGET_WIDTH,
-    USER_AGENT,
-)
-from log import get_logger, log_fn_enter_and_exit
+from .constants import (BOT_NAME, ELLIPSIS, MAX_TWEET_LENGTH,
+                        TARGET_WIDTH, USER_AGENT)
+from .logs.log import get_logger, log_fn_enter_and_exit
 
 LOGGER = get_logger(__name__)
-
 
 @log_fn_enter_and_exit(LOGGER)
 def split_tweet(string: str) -> List[str]:
@@ -87,15 +80,15 @@ def get_filename(timestamp: int) -> str:
 
 
 @log_fn_enter_and_exit(LOGGER)
-def get_permanent_data() -> Dict[str, Any]:
-    with open(DATA_PATH) as fh:
+def get_permanent_data(data_path: str) -> Dict[str, Any]:
+    with open(data_path) as fh:
         return json.load(fh)
 
 
 @log_fn_enter_and_exit(LOGGER)
-def update_permanent_data(new: Dict[str, Any]) -> None:
-    with open(DATA_PATH) as fh:
+def update_permanent_data(data_path: str, new: Dict[str, Any]) -> None:
+    with open(data_path) as fh:
         old = json.load(fh)
     old.update(new)
-    with open(DATA_PATH, "w") as fh:
+    with open(data_path, "w") as fh:
         json.dump(old, fh, indent=2)
