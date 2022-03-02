@@ -65,9 +65,12 @@ def post() -> None:
         )
 
         LOGGER.debug(f"tweet at https://twitter.com/ua_invasion_bot/status/{tweet.id}")
+        
+        target_id: int = tweet.id
         for chunk in description_chunks:
             LOGGER.info(f"making reply tweet for {chunk}")
-            API.update_status(chunk, in_reply_to_status_id=tweet.id)
+            comment_tweet = API.update_status(chunk, in_reply_to_status_id=target_id)
+            target_id = comment_tweet.id
     finally:
         update_permanent_data({"latest_timestamp": latest_data.timestamp})
 
