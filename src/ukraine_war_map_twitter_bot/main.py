@@ -71,7 +71,7 @@ class UkraineBot:
 
             try:
                 tweet = self._api.update_status(
-                    f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)})",
+                    f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)} UTC)",
                     media_ids=[media.media_id],
                 )
 
