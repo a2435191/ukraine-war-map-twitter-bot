@@ -49,13 +49,16 @@ def split_tweet(string: str) -> List[str]:
     LOGGER.debug(f"out: {out}")
     return out
 
-
 @log_fn_enter_and_exit(LOGGER)
-def get_png(url: str) -> BytesIO:
+def get_svg_data(url: str) -> bytes:
     svg_request = requests.get(url, headers={"User-Agent": USER_AGENT})
     svg_request.raise_for_status()
     svg = svg_request.content
+    
+    return svg
 
+@log_fn_enter_and_exit(LOGGER)
+def get_png(svg: str) -> BytesIO:
     png_bytes = BytesIO(svg2png(svg))
     png = Image.open(png_bytes)
     LOGGER.debug(
