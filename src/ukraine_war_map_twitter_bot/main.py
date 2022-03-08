@@ -4,12 +4,14 @@ from typing import Any, Callable, Dict, ParamSpec, TypeVar
 
 import tweepy
 
+from .analyze import get_areas
 from .constants import DESCRIPTION_PREFIX, URL
 from .logs.log import get_logger, log_fn_enter_and_exit
 from .utils import (
     get_filename,
     get_permanent_data,
     get_png,
+    get_svg_data,
     split_tweet,
     update_permanent_data,
 )
@@ -17,18 +19,16 @@ from .wikimedia_download import get_latest_ukraine_map
 
 LOGGER = get_logger(__name__)
 
+
 class UkraineBot:
     @log_fn_enter_and_exit(LOGGER)
-    def __init__(
-        self, permanent_data_path: str, twitter_secrets_path: str
-    ) -> None:
+    def __init__(self, permanent_data_path: str, twitter_secrets_path: str) -> None:
         self._data_path = permanent_data_path
         self._auth_path = twitter_secrets_path
         self._api = self._auth_and_get_api()
 
     _ParamTypes = ParamSpec("_ParamTypes")
     _ReturnType = TypeVar("_ReturnType")
-
 
     @log_fn_enter_and_exit(LOGGER)
     def _auth_and_get_api(self) -> tweepy.API:
@@ -43,7 +43,12 @@ class UkraineBot:
             latest_data = get_latest_ukraine_map()
             LOGGER.debug(f"latest ukraine map: {latest_data}")
 
-            old_timestamp = get_permanent_data(self._data_path)["latest_timestamp"]
+            permanent_data = get_permanent_data(self._data_path)
+            old_timestamp = permanent_data["latest_timestamp"]
+            old_ua_land_pct = permanent_data[
+                "latest_land_controlled_by_ukraine_percent"
+            ]
+            LOGGER.debug(f"permanent_data: {permanent_data}")
 
             if latest_data.timestamp <= old_timestamp:
                 LOGGER.info(
@@ -59,7 +64,9 @@ class UkraineBot:
 
             filename = get_filename(latest_data.timestamp)
             LOGGER.debug(f"filename: {filename}")
-            file_ = get_png(latest_data.svg_url)
+
+            svg_data = get_svg_data(latest_data.svg_url)
+            file_ = get_png(svg_data)
 
             media: tweepy.Media = self._api.media_upload(filename, file=file_)
             LOGGER.debug(f"media: {media}")
@@ -69,9 +76,27 @@ class UkraineBot:
             )
             LOGGER.debug(f"description_chunks: {description_chunks}")
 
+            ru_land, ua_land = get_areas(svg_data.decode("utf-8"))
+            ua_land_pct = ua_land / (ua_land + ru_land) * 100
+            
+            land_control_str = f"Ukraine controls {round(ua_land_pct, 3)}% relative to the invasion's start"
+
+            if old_ua_land_pct is not None:
+                delta = round(ua_land_pct - old_ua_land_pct, 3)
+                if delta >= 0:
+                    delta_string = f"🟢 +{delta}%"
+                else:
+                    delta_string = f"🔴 {delta}%"
+
+                land_control_str += f" ({delta_string})"
+
+            LOGGER.debug(
+                f"ua_land: {ua_land}, ru_land: {ru_land}, ua_land_pct: {ua_land_pct}"
+            )
             try:
                 tweet = self._api.update_status(
-                    f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)} UTC)",
+                    f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)} UTC)\n"
+                    + land_control_str,
                     media_ids=[media.media_id],
                 )
 
@@ -87,7 +112,13 @@ class UkraineBot:
                     )
                     target_id = comment_tweet.id
             finally:
-                update_permanent_data(self._data_path, {"latest_timestamp": latest_data.timestamp})
+                update_permanent_data(
+                    self._data_path,
+                    {
+                        "latest_timestamp": latest_data.timestamp,
+                        "latest_land_controlled_by_ukraine_percent": ua_land_pct,
+                    },
+                )
 
         except Exception as e:
             LOGGER.error(e, exc_info=True)
