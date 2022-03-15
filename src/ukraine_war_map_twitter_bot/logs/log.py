@@ -1,6 +1,6 @@
 import functools
 import logging
-from typing import Any, Callable, ParamSpec, TypeVar
+from typing import Any, Callable, Dict, List, ParamSpec, TypeVar
 from ..constants import LOGS_RELATIVE_PATH
     
 class CustomFormatter(logging.Formatter):
@@ -48,7 +48,10 @@ def log_fn_enter_and_exit(logger: logging.Logger, log_exit: bool = False):
     def deco(fn: Callable[ParamTypes, ReturnType]):
         @functools.wraps(fn)
         def wrapper(*args: ParamTypes.args, **kwargs: ParamTypes.kwargs) -> ReturnType:
-            logger.debug(f"Entered {fn.__name__} with args {args} and kwargs {kwargs}")
+            args_shortened: List[str] = [str(arg)[:100] for arg in args]
+            kwargs_shortened: Dict[str, str] = {str(k)[:100]: str(v)[:100] for k, v in kwargs.items()}
+            
+            logger.debug(f"Entered {fn.__name__} with args {args_shortened} and kwargs {kwargs_shortened}")
             result = fn(*args, **kwargs)
             if log_exit:
                 logger.debug(

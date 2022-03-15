@@ -25,12 +25,14 @@ def get_latest_ukraine_map() -> WikimediaPictureData:
         WikimediaPictureData: A dataclass representing the picture and some metadata.
     """
 
+    LOGGER.debug(f"requesting URL {URL}")
     soup = BeautifulSoup(requests.get(URL).text, features="html.parser")
-    table = soup.select_one('table[class="wikitable filehistory"]')
+    tables = soup.select('table[class="wikitable filehistory"]')
+    
+    assert len(tables) == 1, f"tables has too many results: {tables}"
+    table = tables[0]
 
-    latest_row: Iterable[Tag] = table.find_all("tr")[1].find_all(
-        "td"
-    )  # 0 is header row
+    latest_row: Iterable[Tag] = table.find_all("tr")[1].find_all("td")  # 0 is header row
     LOGGER.debug(f"latest_row: {latest_row}")
 
     # dimensions = tuple([
