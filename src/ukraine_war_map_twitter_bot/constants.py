@@ -2,7 +2,7 @@
 from pathlib import Path
 
 URL = (
-    "https://commons.wikimedia.org/wiki/File:Russo-Ukraine_Conflict_(2014-present).svg"
+    "https://commons.wikimedia.org/wiki/File:2022_Russian_invasion_of_Ukraine.svg"
 )
 DATE_STRING_FORMAT = r"%H:%M, %d %B %Y"
 
