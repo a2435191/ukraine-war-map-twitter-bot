@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, ParamSpec, TypeVar
 import tweepy
 
 from .analyze import get_areas
-from .constants import DESCRIPTION_PREFIX, URL
+from .constants import DESCRIPTION_PREFIX, DESCRIPTION_SUFFIX, URL
 from .logs.log import get_logger, log_fn_enter_and_exit
 from .utils import (
     get_filename,
@@ -96,7 +96,8 @@ class UkraineBot:
             try:
                 tweet = self._api.update_status(
                     f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)} UTC)\n"
-                    + land_control_str,
+                    + land_control_str + "\n"\
+                    + DESCRIPTION_SUFFIX,
                     media_ids=[media.media_id],
                 )
 
