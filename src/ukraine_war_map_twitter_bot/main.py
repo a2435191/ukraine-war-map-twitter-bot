@@ -76,27 +76,33 @@ class UkraineBot:
             )
             LOGGER.debug(f"description_chunks: {description_chunks}")
 
-            ru_land, ua_land = get_areas(svg_data.decode("utf-8"))
-            ua_land_pct = ua_land / (ua_land + ru_land) * 100
-            
-            land_control_str = f"Ukraine controls {round(ua_land_pct, 3)}% relative to the invasion's start"
+            try:
+                ru_land, ua_land = get_areas(svg_data.decode("utf-8"))
+            except Exception as e:
+                LOGGER.warning("could not get areas due to exception: " + str(e))
+                land_control_str = ""
+                ua_land_pct = old_ua_land_pct
+            else:
+                ua_land_pct = ua_land / (ua_land + ru_land) * 100
+                
+                land_control_str = f"Ukraine controls {round(ua_land_pct, 3)}% relative to the invasion's start"
 
-            if old_ua_land_pct is not None:
-                delta = round(ua_land_pct - old_ua_land_pct, 3)
-                if delta >= 0:
-                    delta_string = f"🟢 +{delta}%"
-                else:
-                    delta_string = f"🔴 {delta}%"
+                if old_ua_land_pct is not None:
+                    delta = round(ua_land_pct - old_ua_land_pct, 3)
+                    if delta >= 0:
+                        delta_string = f"🟢 +{delta}%"
+                    else:
+                        delta_string = f"🔴 {delta}%"
 
-                land_control_str += f" ({delta_string})"
+                    land_control_str += f" ({delta_string})\n"
 
-            LOGGER.debug(
-                f"ua_land: {ua_land}, ru_land: {ru_land}, ua_land_pct: {ua_land_pct}"
-            )
+                LOGGER.debug(
+                    f"ua_land: {ua_land}, ru_land: {ru_land}, ua_land_pct: {ua_land_pct}"
+                )
             try:
                 tweet = self._api.update_status(
                     f"{DESCRIPTION_PREFIX} ({datetime.fromtimestamp(latest_data.timestamp)} UTC)\n"
-                    + land_control_str + "\n"\
+                    + land_control_str \
                     + DESCRIPTION_SUFFIX,
                     media_ids=[media.media_id],
                 )
